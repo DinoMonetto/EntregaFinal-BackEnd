@@ -1,0 +1,26 @@
+PreEntrega1-BackEnd/
+├── node_modules/
+├── src/
+│   ├── routes/
+│   │   ├── carts.js
+│   │   └── products.js
+│   ├── middlewares/
+│   │   ├── errorHandler.js
+│   │   └── productValidator.js
+│   ├── managers/
+│   │   ├── cart.manager.js
+│   │   └── product.manager.js
+│   ├── data/
+│   │   ├── carts.json
+│   │   └── products.json
+│   ├── views/
+│   │         └── main.handlebars
+│   │   ├── home.handlebars
+│   │   └── realTimeProducts.handlebars
+│   ├── public/
+│   │   └── js/
+│   │         └── socketClient.js
+│   ├── app.js
+│   └── path.js
+├── package.json
+└── README.md
