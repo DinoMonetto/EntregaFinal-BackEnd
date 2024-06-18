@@ -1,25 +1,62 @@
-import fs from 'fs/promises';
+import Cart from '../models/carts.js';
 
 class CartManager {
-    constructor(path) {
-        this.path = path;
-    }
-
     async getCarts() {
-        const data = await fs.readFile(this.path, 'utf-8');
-        return JSON.parse(data);
+    try {
+        const carts = await Cart.find().populate('products.productId');
+        return carts;
+    } catch (error) {
+        console.error('Error al obtener los carritos:', error);
+        return [];
+    }
     }
 
     async addCart(cart) {
-        const carts = await this.getCarts();
-        carts.push(cart);
-        await fs.writeFile(this.path, JSON.stringify(carts, null, 2));
+    try {
+        const newCart = new Cart(cart);
+        await newCart.save();
+    } catch (error) {
+        console.error('Error al agregar carrito:', error);
+    }
+    }
+
+    async updateCart(cartId, products) {
+    try {
+        await Cart.findByIdAndUpdate(cartId, { products });
+    } catch (error) {
+        console.error('Error al actualizar:', error);
+    }
     }
 
     async deleteCart(cartId) {
-        let carts = await this.getCarts();
-        carts = carts.filter(c => c.id !== cartId);
-        await fs.writeFile(this.path, JSON.stringify(carts, null, 2));
+    try {
+        await Cart.findByIdAndDelete(cartId);
+    } catch (error) {
+        console.error('Error al eliminar:', error);
+    }
+    }
+
+    async deleteProductFromCart(cartId, productId) {
+    try {
+        const cart = await Cart.findById(cartId);
+        cart.products = cart.products.filter(product => product.productId.toString() !== productId);
+        await cart.save();
+    } catch (error) {
+        console.error('Error al eliminar producto:', error);
+    }
+    }
+
+    async updateProductQuantity(cartId, productId, quantity) {
+    try {
+        const cart = await Cart.findById(cartId);
+        const product = cart.products.find(product => product.productId.toString() === productId);
+        if (product) {
+        product.quantity = quantity;
+        await cart.save();
+        }
+    } catch (error) {
+        console.error('Error al actualizar cantidad:', error);
+    }
     }
 }
 

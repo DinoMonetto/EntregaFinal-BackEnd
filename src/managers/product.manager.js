@@ -1,29 +1,31 @@
-import fs from 'fs/promises';
-import { join } from 'path';
-
-const productsFilePath = join(process.cwd(), 'src/data/products.json');
+import Product from '../models/product.js';
 
 class ProductManager {
-  async getProducts() {
+  async getProducts(query = {}, options = {}) {
     try {
-      const data = await fs.readFile(productsFilePath, 'utf-8');
-      return JSON.parse(data);
+      const products = await Product.find(query, null, options);
+      return products;
     } catch (error) {
-      console.error('Error al leer los productos:', error);
+      console.error('Error al obtener los productos:', error);
       return [];
     }
   }
 
   async addProduct(product) {
-    const products = await this.getProducts();
-    products.push(product);
-    await fs.writeFile(productsFilePath, JSON.stringify(products, null, 2));
+    try {
+      const newProduct = new Product(product);
+      await newProduct.save();
+    } catch (error) {
+      console.error('Error al agregar producto:', error);
+    }
   }
 
   async deleteProduct(productId) {
-    let products = await this.getProducts();
-    products = products.filter(product => product.id !== productId);
-    await fs.writeFile(productsFilePath, JSON.stringify(products, null, 2));
+    try {
+      await Product.findByIdAndDelete(productId);
+    } catch (error) {
+      console.error('Error al eliminar producto:', error);
+    }
   }
 }
 

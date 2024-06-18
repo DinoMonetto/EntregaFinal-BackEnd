@@ -4,6 +4,7 @@ import { createServer } from 'http';
 import { join } from 'path';
 import { fileURLToPath } from 'url';
 import exphbs from 'express-handlebars';
+import mongoose from 'mongoose';
 import productRouter from './routes/products.js';
 import cartRouter from './routes/carts.js';
 import ProductManager from './managers/product.manager.js';
@@ -15,7 +16,18 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server);
 
-const productManager = new ProductManager();  // Instancia del ProductManager
+// Conectar a MongoDB
+const mongoUri = 'mongodb+srv://dinolmonetto:123456dD.@monetto.iz9zzbq.mongodb.net/nombre_de_la_base_de_datos?retryWrites=true&w=majority&appName=Monetto';
+mongoose.connect(mongoUri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => {
+  console.log('Conectado a MongoDB');
+}).catch((error) => {
+  console.error('Error al conectar a MongoDB:', error);
+});
+
+const productManager = new ProductManager();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
