@@ -12,6 +12,7 @@
     "fs-extra": "^9.1.0",
     "mongodb": "^6.7.0",
     "mongoose": "^8.4.3",
+    "mongoose-paginate-v2": "^1.8.2",
     "socket.io": "^4.7.5",
     "uuid": "^8.3.2"
   },

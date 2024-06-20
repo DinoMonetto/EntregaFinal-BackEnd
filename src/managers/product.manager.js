@@ -1,13 +1,13 @@
-import Product from '../models/product.js';
+// managers/product.manager.js
+import Product from '../models/product.model.js';
 
 class ProductManager {
-  async getProducts(query = {}, options = {}) {
+  async getProducts() {
     try {
-      const products = await Product.find(query, null, options);
-      return products;
+      return await Product.find({});
     } catch (error) {
-      console.error('Error al obtener los productos:', error);
-      return [];
+      console.error('Error getting products:', error);
+      throw error;
     }
   }
 
@@ -15,18 +15,30 @@ class ProductManager {
     try {
       const newProduct = new Product(product);
       await newProduct.save();
+      return newProduct;
     } catch (error) {
-      console.error('Error al agregar producto:', error);
+      console.error('Error adding product:', error);
+      throw error;
     }
   }
 
   async deleteProduct(productId) {
     try {
-      await Product.findByIdAndDelete(productId);
+      return await Product.findByIdAndDelete(productId);
     } catch (error) {
-      console.error('Error al eliminar producto:', error);
+      console.error('Error deleting product:', error);
+      throw error;
+    }
+  }
+  async countProducts(query) {
+    try {
+      return await Product.countDocuments(query);
+    } catch (error) {
+      console.error('Error counting products:', error);
+      throw error;
     }
   }
 }
+
 
 export default ProductManager;

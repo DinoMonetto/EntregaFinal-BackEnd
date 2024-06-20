@@ -1,4 +1,4 @@
-import Cart from '../models/carts.js';
+import Cart from '../models/cart.model.js';
 
 class CartManager {
     async getCarts() {

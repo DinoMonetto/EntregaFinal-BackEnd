@@ -1,9 +1,16 @@
-PreEntrega1-BackEnd/
+EntregaFinal-BackEnd/
 ├── node_modules/
 ├── src/
+│   ├── controllers/
+│   │   ├── cartController.js
+│   │   └── productController.js
+│   ├── models/
+│   │   ├── carts.js
+│   │   └── product.js
 │   ├── routes/
 │   │   ├── carts.js
 │   │   └── products.js
+│   │   └── views.js
 │   ├── middlewares/
 │   │   ├── errorHandler.js
 │   │   └── productValidator.js
@@ -14,7 +21,9 @@ PreEntrega1-BackEnd/
 │   │   ├── carts.json
 │   │   └── products.json
 │   ├── views/
+│   │   └── layouts/
 │   │         └── main.handlebars
+│   │   ├── cart.handlebars
 │   │   ├── home.handlebars
 │   │   └── realTimeProducts.handlebars
 │   ├── public/

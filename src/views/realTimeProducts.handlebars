@@ -4,47 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Productos en Tiempo Real</title>
-    <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
     <h1>Productos en Tiempo Real</h1>
-
-    <form id="productForm">
-    <input type="text" id="name" placeholder="Nombre del producto" required>
-    <input type="number" id="price" placeholder="Precio" required>
-    <button type="submit">Agregar Producto</button>
-    </form>
-
-    <ul id="productList">
-    {{#each products}}
-        <li>{{this.name}} - ${{this.price}}</li>
-    {{/each}}
-    </ul>
-
+    <div id="products-container">
+        {{#each products}}
+            <div class="product-item">
+                <h2>{{this.name}}</h2>
+                <p>{{this.description}}</p>
+                <p>Precio: ${{this.price}}</p>
+                <button class="add-to-cart" data-product-id="{{this._id}}">Agregar al Carrito</button>
+            </div>
+        {{/each}}
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/socketClient.js"></script>
     <script>
-    const socket = io();
-
-    document.getElementById('productForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        const name = document.getElementById('name').value;
-        const price = document.getElementById('price').value;
-
-        socket.emit('addProduct', { name, price });
-
-        document.getElementById('name').value = '';
-        document.getElementById('price').value = '';
-    });
-
-    socket.on('products', function(products) {
-        const productList = document.getElementById('productList');
-        productList.innerHTML = '';
-        products.forEach(product => {
-        const li = document.createElement('li');
-        li.textContent = `${product.name} - $${product.price}`;
-        productList.appendChild(li);
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', async (event) => {
+                const productId = event.target.dataset.productId;
+                const userId = 'id_del_usuario'; // Reemplaza con el ID del usuario autenticado
+                const response = await fetch(`/api/carts/${userId}/add`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ productId, quantity: 1 }),
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    alert('Producto agregado al carrito');
+                } else {
+                    alert('Error al agregar el producto al carrito');
+                }
+            });
         });
-    });
     </script>
 </body>
 </html>

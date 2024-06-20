@@ -1,15 +1,22 @@
-<ul id="productList">
-  {{#each products}}
-    <li>{{this.name}} - ${{this.price}}</li>
-  {{/each}}
-</ul>
-
-<div>
-  {{#if hasPrevPage}}
-    <a href="{{prevLink}}">Página Anterior</a>
-  {{/if}}
-  <span>Página {{page}} de {{totalPages}}</span>
-  {{#if hasNextPage}}
-    <a href="{{nextLink}}">Página Siguiente</a>
-  {{/if}}
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Productos</title>
+</head>
+<body>
+    <h1>Productos</h1>
+    <ul id="productList">
+        {{#each products}}
+        <li>
+            <h2>{{name}}</h2>
+            <p>{{description}}</p>
+            <p>Categoría: {{category}}</p>
+            <p>Precio: {{price}}</p>
+            <p>Stock: {{stock}}</p>
+            <img src="{{img}}" alt="{{name}}">
+            </li>
+        {{/each}}
+    </ul>
+</body>
+</html>

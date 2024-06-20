@@ -1,31 +1,27 @@
-// src/controllers/productController.js
-import Product from '../models/product.js';
+import Product from '../models/product.model.js';
 
 export const getProducts = async (req, res) => {
   try {
-    const { limit = 10, page = 1, sort, query } = req.query;
-    const filter = query ? { $or: [{ category: query }, { available: query === 'true' }] } : {};
+    const { page = 1, limit = 10, ...query } = req.query;
     const options = {
-      limit: parseInt(limit),
-      page: parseInt(page),
-      sort: sort ? { price: sort === 'asc' ? 1 : -1 } : {}
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10)
     };
-
-    const products = await Product.paginate(filter, options);
-
-    res.json({
-      status: 'success',
-      payload: products.docs,
-      totalPages: products.totalPages,
-      prevPage: products.hasPrevPage ? products.prevPage : null,
-      nextPage: products.hasNextPage ? products.nextPage : null,
-      page: products.page,
-      hasPrevPage: products.hasPrevPage,
-      hasNextPage: products.hasNextPage,
-      prevLink: products.hasPrevPage ? `/api/products?limit=${limit}&page=${products.prevPage}&sort=${sort}&query=${query}` : null,
-      nextLink: products.hasNextPage ? `/api/products?limit=${limit}&page=${products.nextPage}&sort=${sort}&query=${query}` : null
-    });
+    const products = await Product.paginate(query, options);
+    res.status(200).json({ status: 'success', payload: products });
   } catch (error) {
-    res.status(500).json({ status: 'error', message: error.message });
+    console.error('Error al obtener los productos:', error);
+    res.status(500).json({ status: 'error', message: 'Error al obtener los productos' });
   }
 };
+export const addProduct = async (req, res) => {
+    try {
+      const newProduct = new Product(req.body);
+      await newProduct.save();
+      res.status(201).json({ status: 'success', payload: newProduct });
+    } catch (error) {
+      console.error('Error al agregar producto:', error);
+      res.status(500).json({ status: 'error', message: 'Error al agregar producto' });
+    }
+  };
+  

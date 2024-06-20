@@ -1,7 +1,7 @@
 import express from 'express';
 import { Server } from 'socket.io';
 import { createServer } from 'http';
-import { join } from 'path';
+import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import exphbs from 'express-handlebars';
 import mongoose from 'mongoose';
@@ -10,18 +10,15 @@ import cartRouter from './routes/carts.js';
 import ProductManager from './managers/product.manager.js';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = join(__filename, '..');
+const __dirname = dirname(__filename);
 
 const app = express();
 const server = createServer(app);
 const io = new Server(server);
 
 // Conectar a MongoDB
-const mongoUri = 'mongodb+srv://dinolmonetto:123456dD.@monetto.iz9zzbq.mongodb.net/nombre_de_la_base_de_datos?retryWrites=true&w=majority&appName=Monetto';
-mongoose.connect(mongoUri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => {
+const mongoUri = 'mongodb+srv://dinolmonetto:123456dD.@monetto.iz9zzbq.mongodb.net/?retryWrites=true&w=majority&appName=Monetto';
+mongoose.connect(mongoUri).then(() => {
   console.log('Conectado a MongoDB');
 }).catch((error) => {
   console.error('Error al conectar a MongoDB:', error);
@@ -36,7 +33,12 @@ app.use(express.static(join(__dirname, 'public')));
 // Configurar Handlebars
 app.engine('handlebars', exphbs({
   defaultLayout: 'main',
-  layoutsDir: join(__dirname, 'views', 'layouts')
+  layoutsDir: join(__dirname, 'views', 'layouts'),
+  // Opción para deshabilitar la comprobación de acceso al prototipo
+  runtimeOptions: {
+    allowProtoPropertiesByDefault: true,
+    allowProtoMethodsByDefault: true,
+  }
 }));
 app.set('view engine', 'handlebars');
 app.set('views', join(__dirname, 'views'));
@@ -47,8 +49,14 @@ app.use('/api/carts', cartRouter);
 
 // Página de inicio
 app.get('/', async (req, res) => {
-  const products = await productManager.getProducts();
-  res.render('home', { products });
+  try {
+    const products = await productManager.getProducts();
+    console.log('Productos obtenidos:', products); // Mensaje de depuración para verificar los productos obtenidos
+    res.render('home', { products });
+  } catch (error) {
+    console.error('Error al obtener productos:', error);
+    res.status(500).send('Error interno al obtener productos');
+  }
 });
 
 // Página de productos en tiempo real

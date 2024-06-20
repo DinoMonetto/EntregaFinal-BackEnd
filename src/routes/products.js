@@ -1,58 +1,35 @@
-import express from 'express';
+// routes/products.js
+import { Router } from 'express';
 import ProductManager from '../managers/product.manager.js';
 
-const router = express.Router();
+const router = Router();
 const productManager = new ProductManager();
 
-// Ruta para obtener productos con filtros, paginación y ordenamiento
 router.get('/', async (req, res) => {
   try {
-    const { limit = 10, page = 1, sort, query } = req.query;
-    
-    // Convertir limit y page a números
-    const limitNum = parseInt(limit);
-    const pageNum = parseInt(page);
-
-    // Obtener los productos
     const products = await productManager.getProducts();
-
-    // Aplicar filtros
-    let filteredProducts = products;
-    if (query) {
-      filteredProducts = products.filter(product => 
-        product.category.includes(query) || product.status.includes(query)
-      );
-    }
-
-    // Ordenar los productos
-    if (sort) {
-      filteredProducts.sort((a, b) => sort === 'asc' ? a.price - b.price : b.price - a.price);
-    }
-
-    // Paginar los productos
-    const totalProducts = filteredProducts.length;
-    const totalPages = Math.ceil(totalProducts / limitNum);
-    const startIndex = (pageNum - 1) * limitNum;
-    const paginatedProducts = filteredProducts.slice(startIndex, startIndex + limitNum);
-
-    // Responder con los productos paginados
-    res.json({
-      status: 'success',
-      payload: paginatedProducts,
-      totalPages,
-      prevPage: pageNum > 1 ? pageNum - 1 : null,
-      nextPage: pageNum < totalPages ? pageNum + 1 : null,
-      page: pageNum,
-      hasPrevPage: pageNum > 1,
-      hasNextPage: pageNum < totalPages,
-      prevLink: pageNum > 1 ? `/api/products?limit=${limitNum}&page=${pageNum - 1}&sort=${sort}&query=${query}` : null,
-      nextLink: pageNum < totalPages ? `/api/products?limit=${limitNum}&page=${pageNum + 1}&sort=${sort}&query=${query}` : null
-    });
+    res.json({ status: 'success', payload: products });
   } catch (error) {
-    res.status(500).json({ error: 'Error al obtener los productos' });
+    res.status(500).json({ status: 'error', message: error.message });
   }
 });
 
-// Agrega más rutas según sea necesario
+router.post('/', async (req, res) => {
+  try {
+    const product = await productManager.addProduct(req.body);
+    res.json({ status: 'success', payload: product });
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
+router.delete('/:id', async (req, res) => {
+  try {
+    await productManager.deleteProduct(req.params.id);
+    res.json({ status: 'success' });
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
 
 export default router;
