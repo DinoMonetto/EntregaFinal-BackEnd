@@ -1,22 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Productos</title>
-</head>
-<body>
-    <h1>Productos</h1>
-    <ul id="productList">
-        {{#each products}}
-        <li>
-            <h2>{{name}}</h2>
-            <p>{{description}}</p>
-            <p>Categoría: {{category}}</p>
-            <p>Precio: {{price}}</p>
-            <p>Stock: {{stock}}</p>
-            <img src="{{img}}" alt="{{name}}">
-            </li>
-        {{/each}}
-    </ul>
-</body>
-</html>
+<!-- views/home.handlebars -->
+<h1>Productos</h1>
+<ul>
+  {{#each products}}
+  <li>
+    <h2>{{this.name}}</h2>
+    <p>{{this.description}}</p>
+    <p>{{this.price}}</p>
+    <a href="/products/{{this._id}}">Ver detalles</a>
+    <button onclick="addToCart('{{this._id}}')">Agregar al carrito</button>
+  </li>
+  {{/each}}
+</ul>
+
+<div>
+  {{#if hasPrevPage}}
+  <a href="{{prevLink}}">Página anterior</a>
+  {{/if}}
+
+  {{#if hasNextPage}}
+  <a href="{{nextLink}}">Página siguiente</a>
+  {{/if}}
+</div>
+
+<script>
+  const userId = '{{userId}}'; // Obtener userId del contexto de Handlebars
+
+  function addToCart(productId) {
+    fetch(`/api/carts/${userId}/products/${productId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ quantity: 1 })
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Producto agregado al carrito:', data);
+    })
+    .catch(error => {
+      console.error('Error al agregar el producto al carrito:', error);
+    });
+  }
+</script>

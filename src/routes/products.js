@@ -1,35 +1,37 @@
-// routes/products.js
-import { Router } from 'express';
-import ProductManager from '../managers/product.manager.js';
+import express from 'express';
+import Product from '../models/product.model.js';
 
-const router = Router();
-const productManager = new ProductManager();
+const router = express.Router();
 
+// Obtener productos con paginación y filtrado
 router.get('/', async (req, res) => {
-  try {
-    const products = await productManager.getProducts();
-    res.json({ status: 'success', payload: products });
-  } catch (error) {
-    res.status(500).json({ status: 'error', message: error.message });
-  }
-});
+    try {
+        const { limit = 10, page = 1, sort, query } = req.query;
+        const options = {
+            limit: parseInt(limit),
+            page: parseInt(page),
+            sort: sort ? { price: sort === 'asc' ? 1 : -1 } : {}
+        };
 
-router.post('/', async (req, res) => {
-  try {
-    const product = await productManager.addProduct(req.body);
-    res.json({ status: 'success', payload: product });
-  } catch (error) {
-    res.status(500).json({ status: 'error', message: error.message });
-  }
-});
+        const filter = query ? { category: query } : {};
 
-router.delete('/:id', async (req, res) => {
-  try {
-    await productManager.deleteProduct(req.params.id);
-    res.json({ status: 'success' });
-  } catch (error) {
-    res.status(500).json({ status: 'error', message: error.message });
-  }
+        const products = await Product.paginate(filter, options);
+
+        res.json({
+            status: 'success',
+            payload: products.docs,
+            totalPages: products.totalPages,
+            prevPage: products.hasPrevPage ? products.page - 1 : null,
+            nextPage: products.hasNextPage ? products.page + 1 : null,
+            page: products.page,
+            hasPrevPage: products.hasPrevPage,
+            hasNextPage: products.hasNextPage,
+            prevLink: products.hasPrevPage ? `/api/products?limit=${limit}&page=${products.page - 1}&sort=${sort}&query=${query}` : null,
+            nextLink: products.hasNextPage ? `/api/products?limit=${limit}&page=${products.page + 1}&sort=${sort}&query=${query}` : null
+        });
+    } catch (error) {
+        res.status(500).json({ status: 'error', message: error.message });
+    }
 });
 
 export default router;

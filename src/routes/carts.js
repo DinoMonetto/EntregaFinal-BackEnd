@@ -1,46 +1,31 @@
-import { Router } from 'express';
+import express from 'express';
 import Cart from '../models/cart.model.js';
 import Product from '../models/product.model.js';
+import { addProductToCart, deleteProductFromCart, updateCart, updateProductQuantity, deleteAllProductsFromCart, getCartWithProducts } from '../controllers/cartController.js';
 
-const router = Router();
+const router = express.Router();
 
-// Ruta para agregar un producto al carrito
-router.post('/:cartId/add', async (req, res) => {
-    try {
-        const { cartId } = req.params;
-        const { productId, quantity } = req.body;
+// Añadir producto al carrito
+router.post('/:cid/products/:pid', addProductToCart);
 
-        // Encuentra el carrito por su ID
-        const cart = await Cart.findById(cartId);
-        if (!cart) {
-            return res.status(404).json({ error: 'Carrito no encontrado' });
-        }
+// Eliminar producto del carrito
+router.delete('/:cid/products/:pid', deleteProductFromCart);
 
-        // Encuentra el producto por su ID
-        const product = await Product.findById(productId);
-        if (!product) {
-            return res.status(404).json({ error: 'Producto no encontrado' });
-        }
+// Actualizar carrito con un arreglo de productos
+router.put('/:cid', updateCart);
 
-        // Verifica si el producto ya está en el carrito
-        const existingItemIndex = cart.items.findIndex(item => item.productId.toString() === productId);
-        if (existingItemIndex !== -1) {
-            // Si el producto ya está en el carrito, actualiza la cantidad
-            cart.items[existingItemIndex].quantity += quantity;
-        } else {
-            // Si el producto no está en el carrito, agrégalo
-            cart.items.push({ productId, quantity });
-        }
+// Actualizar cantidad de un producto en el carrito
+router.put('/:cid/products/:pid', updateProductQuantity);
 
-        // Actualiza el total del carrito
-        cart.total += product.price * quantity;
+// Eliminar todos los productos del carrito
+router.delete('/:cid', deleteAllProductsFromCart);
 
-        await cart.save();
+// Obtener carrito con productos completos (populate)
+router.get('/:cid', getCartWithProducts);
 
-        res.json({ message: 'Producto agregado al carrito', cart });
-    } catch (error) {
-        res.status(500).json({ error: 'Error al agregar producto al carrito' });
-    }
+// Listado de carritos
+router.get('/', (req, res) => {
+  res.send('Listado de carritos');
 });
 
 export default router;
